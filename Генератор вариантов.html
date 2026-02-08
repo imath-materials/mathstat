@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Занятие 2 — 2.1 Генератор вариантов</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/eclipse.css">
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/python/python.js"></script>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+
+<style>
+  :root {
+    --bg:#ffffff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
+    --panel:#f9fafb; --btn:#111827; --btnText:#fff; --btn2:#f3f4f6;
+  }
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);margin:0}
+  main{max-width:980px;margin:28px auto;padding:0 16px}
+  h1{font-size:22px;margin:0 0 10px}
+  p{margin:0 0 16px;color:var(--muted);line-height:1.45}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 14px}
+  .btn{appearance:none;border:1px solid var(--border);background:var(--btn);color:var(--btnText);padding:10px 12px;border-radius:10px;
+        cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+  .btn.secondary{background:var(--btn2);color:var(--text)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .panel{border:1px solid var(--border);border-radius:14px;background:var(--panel);overflow:hidden}
+  .cm-wrap{padding:10px}
+  .CodeMirror{height:auto;min-height:280px;font-size:14px}
+  #out{padding:12px 14px;border-top:1px solid var(--border);background:#fff}
+  #out pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.35}
+  .status{font-size:12px;color:var(--muted)}
+</style>
+
+<script>
+function pyToJs(v){
+  if(v && typeof v.toJs==='function'){
+    const js = v.toJs({create_proxies:false});
+    if(typeof v.destroy==='function') v.destroy();
+    return js;
+  }
+  return v;
+}
+
+let pyReady = (async () => {
+  const py = await loadPyodide();
+  await py.loadPackage(['numpy']);
+  py.runPython(`
+import io, traceback
+from contextlib import redirect_stdout, redirect_stderr
+
+def __run_capture(code: str):
+    __out = io.StringIO()
+    __err = io.StringIO()
+    try:
+        with redirect_stdout(__out), redirect_stderr(__err):
+            exec(compile(code, "<string>", "exec"), globals(), globals())
+    except Exception:
+        traceback.print_exc(file=__err)
+    return __out.getvalue(), __err.getvalue()
+`);
+  return py;
+})();
+
+let editor;
+let lastCsvUrl = null;
+let lastCsvName = null;
+
+async function runCode(){
+  const out = document.getElementById('out');
+  const status = document.getElementById('status');
+  const runBtn = document.getElementById('runBtn');
+  const dlBtn = document.getElementById('downloadBtn');
+
+  out.innerHTML = '';
+  dlBtn.disabled = true;
+
+  if(lastCsvUrl) {
+    try { URL.revokeObjectURL(lastCsvUrl); } catch(e){}
+    lastCsvUrl = null;
+    lastCsvName = null;
+  }
+
+  runBtn.disabled = true;
+  status.textContent = 'Загрузка Python…';
+
+  try {
+    const py = await pyReady;
+    status.textContent = 'Выполнение…';
+
+    const code = editor.getValue();
+    py.globals.set("__user_code", code);
+    const res = await py.runPythonAsync("__run_capture(__user_code)");
+    const [stdoutText, stderrText] = pyToJs(res);
+
+    if(stdoutText && stdoutText.trim()){
+      const pre = document.createElement('pre');
+      pre.textContent = stdoutText;
+      out.appendChild(pre);
+    }
+    if(stderrText && stderrText.trim()){
+      const pre = document.createElement('pre');
+      pre.style.color = '#b91c1c';
+      pre.textContent = stderrText;
+      out.appendChild(pre);
+    }
+
+    // Build CSV from sample (robust: return list to JS, join here)
+    const tup = await py.runPythonAsync("(int(VARIANT), [float(x) for x in sample])");
+    const [variant, arr] = pyToJs(tup);
+    const csvText = arr.map(x => Number(x).toFixed(1)).join("\n");
+
+    const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    lastCsvUrl = url;
+    lastCsvName = `variant_${variant}.csv`;
+
+    dlBtn.disabled = false;
+    status.textContent = 'Готово.';
+  } catch(e) {
+    status.textContent = 'Ошибка.';
+    const pre = document.createElement('pre');
+    pre.style.color = '#b91c1c';
+    pre.textContent = (e && e.message) ? e.message : String(e);
+    out.appendChild(pre);
+  } finally {
+    runBtn.disabled = false;
+  }
+}
+
+function downloadCsv(){
+  if(!lastCsvUrl || !lastCsvName) return;
+  const a = document.createElement('a');
+  a.href = lastCsvUrl;
+  a.download = lastCsvName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const ta = document.getElementById('code');
+  editor = CodeMirror.fromTextArea(ta, {
+    mode: 'python',
+    theme: 'eclipse',
+    lineNumbers: true,
+    indentUnit: 4,
+    viewportMargin: Infinity
+  });
+
+  document.getElementById('runBtn').addEventListener('click', runCode);
+  document.getElementById('downloadBtn').addEventListener('click', downloadCsv);
+});
+</script>
+</head>
+
+<body>
+<main>
+  <h1>2.1 Генератор вариантов (1–15)</h1>
+  <p>Поменяйте <b>VARIANT</b> (номер варианта) и нажмите «▶ Запустить». После выполнения кода станет доступна кнопка «💾 Скачать CSV».</p>
+
+  <div class="bar">
+    <button id="runBtn" class="btn">▶ Запустить</button>
+    <button id="downloadBtn" class="btn secondary" disabled title="Скачать выборку CSV (появится после запуска)">💾 Скачать CSV</button>
+    <span id="status" class="status"></span>
+  </div>
+
+  <div class="panel">
+    <div class="cm-wrap">
+      <textarea id="code">import numpy as np
+
+# -------------------------------------------------
+# ГЕНЕРАТОР ВАРИАНТОВ (1–15)
+# -------------------------------------------------
+# СТУДЕНТ: измените номер варианта здесь
+VARIANT = 3
+
+# Параметры вариантов: (μ, σ)
+params = {
+    1: (50, 8),   2: (55, 10),  3: (60, 12),  4: (65, 9),   5: (70, 11),
+    6: (75, 13),  7: (80, 10),  8: (85, 12),  9: (90, 9),  10: (95, 11),
+   11: (100, 8), 12: (105, 10), 13: (110, 12), 14: (115, 9), 15: (120, 11)
+}
+
+mu, sigma = params[VARIANT]
+
+# Генерация выборки
+np.random.seed(2026 + VARIANT)
+sample = np.random.normal(mu, sigma, 100)
+sample = np.round(sample, 1)
+
+# Вывод параметров
+print(f&quot;ВАРИАНТ {VARIANT}&quot;)
+print(&quot;=&quot;*60)
+print(f&quot;Истинные параметры распределения:&quot;)
+print(f&quot;  Математическое ожидание: μ = {mu}&quot;)
+print(f&quot;  Дисперсия:               σ² = {sigma**2}&quot;)
+print(&quot;=&quot;*60)
+
+# Вывод выборки таблицей 10×10
+print(&quot;\nВыборка (100 наблюдений):&quot;)
+print(&quot;=&quot;*60)
+for i in range(10):
+    row = sample[i*10:(i+1)*10]
+    print(&quot;  &quot; + &quot;  &quot;.join([f&quot;{x:6.1f}&quot; for x in row]))
+print(&quot;=&quot;*60)
+</textarea>
+    </div>
+    <div id="out"></div>
+  </div>
+</main>
+</body>
+</html>
