@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Практика 9 — варианты для студентов</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --border:#dbe3ef;
+    --panel:#f8fafc;
+    --btn:#0f172a;
+    --btnText:#ffffff;
+    --focus:#2563eb;
+    --accent:#eef4ff;
+    --accent2:#f8fafc;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  main{max-width:1120px;margin:28px auto;padding:0 16px 36px}
+  h1{margin:0 0 8px;font-size:28px;line-height:1.2}
+  p.lead{margin:0 0 16px;color:var(--muted);line-height:1.55;font-size:15px}
+  .bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0 18px}
+  label{display:flex;align-items:center;gap:8px;font-weight:700}
+  input[type="number"]{width:96px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;font-size:15px;outline:none;background:#fff;color:var(--text)}
+  input[type="number"]:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(37,99,235,.16)}
+  .btn{appearance:none;border:1px solid var(--border);background:var(--btn);color:var(--btnText);padding:10px 15px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:800}
+  .btn.secondary{background:#fff;color:var(--text)}
+  .panel{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:var(--panel)}
+  .section{padding:18px;background:#fff;border-bottom:1px solid var(--border)}
+  .section:last-child{border-bottom:none}
+  .section h2{margin:0 0 12px;font-size:18px}
+  .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .metaCard{border:1px solid var(--border);border-radius:14px;padding:12px 14px;background:var(--accent2)}
+  .metaCard .k{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .metaCard .v{font-size:16px;font-weight:750;line-height:1.35}
+  .formula{padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:var(--accent);line-height:1.6}
+  .formula code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .sampleCard{border:1px solid var(--border);border-radius:16px;background:#fff;overflow:hidden}
+  .sampleHead{padding:12px 14px;font-size:16px;font-weight:800;background:var(--accent2);border-bottom:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;font-size:14px}
+  thead th{background:#fff;position:sticky;top:0;z-index:1}
+  tbody tr:nth-child(odd){background:#fcfdff}
+  .scroll{max-height:420px;overflow:auto}
+  .teacherGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+  .statCard{border:1px solid var(--border);border-radius:14px;padding:12px 14px;background:#fff}
+  .statCard .k{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .statCard .v{font-size:20px;font-weight:800;line-height:1.2}
+  .result.ok{border-left:4px solid #16a34a}
+  .result.bad{border-left:4px solid #dc2626}
+  .note{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.5}
+  .topline{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  .variantBadge{font-size:14px;font-weight:800;padding:8px 12px;background:var(--accent);border:1px solid var(--border);border-radius:999px}
+  @media (max-width:860px){.grid2{grid-template-columns:1fr}.teacherGrid{grid-template-columns:1fr 1fr}}
+  @media (max-width:560px){h1{font-size:24px}.teacherGrid,.meta{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Практика 9 — варианты для студентов</h1>
+  <p class="lead">Генератор вариантов по проверке гипотез о равенстве математических ожиданий двух нормальных совокупностей. На странице выводятся только условие и выборки без преподавательских расчётов.</p>
+  <div class="bar">
+    <label>Вариант
+      <input id="variant" type="number" min="1" max="15" step="1" inputmode="numeric" placeholder="1–15"/>
+    </label>
+    <button id="runBtn" class="btn">Показать</button>
+  </div>
+
+  <div id="card" class="panel" hidden>
+    <section class="section">
+      <div class="topline">
+        <h2 style="margin:0">Задание</h2>
+        <div id="titleVariant" class="variantBadge"></div>
+      </div>
+      <div id="meta" class="meta" style="margin-top:14px"></div>
+      <div class="formula" style="margin-top:14px">
+        <strong>Что нужно сделать.</strong><br/>
+        Для данных двух независимых выборок проверить гипотезу о равенстве математических ожиданий при предположении, что обе генеральные совокупности нормальны, а их дисперсии неизвестны, но равны. Использовать двусторонний критерий Стьюдента для двух выборок с объединённой оценкой дисперсии.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Выборочные данные</h2>
+      <div class="grid2">
+        <div class="sampleCard">
+          <div class="sampleHead">Первая выборка X</div>
+          <div class="scroll">
+            <table>
+              <thead><tr><th>i</th><th>x<sub>i</sub></th></tr></thead>
+              <tbody id="sampleX"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sampleCard">
+          <div class="sampleHead">Вторая выборка Y</div>
+          <div class="scroll">
+            <table>
+              <thead><tr><th>j</th><th>y<sub>j</sub></th></tr></thead>
+              <tbody id="sampleY"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="note">Подсказка: можно открыть конкретный вариант сразу по ссылке вида <code>?variant=7</code>.</div>
+    </section>
+  </div>
+</main>
+<script>
+const DATA = {"1": {"variant": 1, "m": 8, "n": 10, "alpha": 0.05, "x": [17, 19, 20, 23, 19, 14, 21, 16], "y": [17, 20, 18, 18, 22, 14, 26, 17, 20, 22], "xbar": 18.625, "ybar": 19.4, "sx2": 8.267857142857142, "sy2": 11.377777777777778, "sp2": 10.0171875, "t_obs": -0.5162232277886254, "df": 16, "t_crit": 2.1199052992212546, "p_value": 0.6127590799230902, "reject": false}, "2": {"variant": 2, "m": 9, "n": 11, "alpha": 0.05, "x": [19, 27, 26, 21, 20, 19, 18, 20, 24], "y": [18, 28, 21, 21, 17, 19, 29, 23, 24, 18, 25], "xbar": 21.555555555555557, "ybar": 22.09090909090909, "sx2": 10.777777777777777, "sy2": 16.69090909090909, "sp2": 14.062850729517395, "t_obs": -0.31761908550911716, "df": 18, "t_crit": 2.1009220402410382, "p_value": 0.7544288588467059, "reject": false}, "3": {"variant": 3, "m": 10, "n": 12, "alpha": 0.05, "x": [27, 20, 27, 24, 27, 29, 22, 23, 15, 24], "y": [28, 24, 31, 22, 27, 29, 20, 18, 22, 28, 19, 27], "xbar": 23.8, "ybar": 24.583333333333332, "sx2": 17.066666666666666, "sy2": 18.628787878787875, "sp2": 17.925833333333333, "t_obs": -0.4321019369095368, "df": 20, "t_crit": 2.085963447265864, "p_value": 0.6702901983713189, "reject": false}, "4": {"variant": 4, "m": 11, "n": 9, "alpha": 0.05, "x": [25, 32, 33, 19, 26, 22, 22, 25, 26, 28, 33], "y": [21, 29, 30, 35, 28, 23, 37, 23, 22], "xbar": 26.454545454545453, "ybar": 27.555555555555557, "sx2": 21.872727272727268, "sy2": 33.52777777777778, "sp2": 27.052749719416383, "t_obs": -0.47096452499473807, "df": 18, "t_crit": 2.1009220402410382, "p_value": 0.643323365120907, "reject": false}, "5": {"variant": 5, "m": 12, "n": 10, "alpha": 0.05, "x": [34, 24, 33, 24, 29, 17, 29, 31, 19, 35, 34, 25], "y": [37, 32, 26, 33, 25, 32, 29, 29, 30, 23], "xbar": 27.833333333333332, "ybar": 29.6, "sx2": 36.33333333333333, "sy2": 17.377777777777776, "sp2": 27.80333333333333, "t_obs": -0.7825020144525614, "df": 20, "t_crit": 2.085963447265864, "p_value": 0.44308650109548914, "reject": false}, "6": {"variant": 6, "m": 8, "n": 11, "alpha": 0.05, "x": [31, 32, 31, 32, 33, 34, 40, 35], "y": [35, 29, 37, 35, 33, 33, 34, 34, 26, 31, 32], "xbar": 33.5, "ybar": 32.63636363636363, "sx2": 8.857142857142858, "sy2": 9.454545454545455, "sp2": 9.20855614973262, "t_obs": 0.6124909632176067, "df": 17, "t_crit": 2.1098155778333156, "p_value": 0.5483191402263602, "reject": false}, "7": {"variant": 7, "m": 9, "n": 12, "alpha": 0.05, "x": [33, 38, 37, 35, 37, 34, 39, 30, 35], "y": [39, 41, 32, 38, 33, 32, 37, 34, 32, 34, 38, 38], "xbar": 35.333333333333336, "ybar": 35.666666666666664, "sx2": 7.750000000000001, "sy2": 10.060606060606062, "sp2": 9.087719298245615, "t_obs": -0.2507572645734253, "df": 19, "t_crit": 2.0930240544083087, "p_value": 0.8046934963823159, "reject": false}, "8": {"variant": 8, "m": 10, "n": 8, "alpha": 0.05, "x": [41, 41, 38, 34, 36, 40, 46, 40, 30, 45], "y": [42, 37, 42, 46, 36, 37, 40, 35], "xbar": 39.1, "ybar": 39.375, "sx2": 23.433333333333334, "sy2": 14.267857142857142, "sp2": 19.4234375, "t_obs": -0.1315462246810083, "df": 16, "t_crit": 2.1199052992212546, "p_value": 0.8969831566313894, "reject": false}, "9": {"variant": 9, "m": 11, "n": 9, "alpha": 0.05, "x": [31, 37, 39, 41, 39, 45, 38, 41, 33, 43, 45], "y": [40, 46, 40, 37, 39, 42, 34, 38, 34], "xbar": 39.27272727272727, "ybar": 38.888888888888886, "sx2": 20.018181818181816, "sy2": 14.361111111111109, "sp2": 17.503928170594836, "t_obs": 0.2041189098699703, "df": 18, "t_crit": 2.1009220402410382, "p_value": 0.8405506648181129, "reject": false}, "10": {"variant": 10, "m": 12, "n": 10, "alpha": 0.05, "x": [27, 27, 25, 21, 27, 19, 25, 31, 33, 31, 24, 24], "y": [27, 25, 32, 25, 25, 18, 17, 26, 21, 27], "xbar": 26.166666666666668, "ybar": 24.3, "sx2": 16.87878787878788, "sy2": 20.233333333333334, "sp2": 18.388333333333332, "t_obs": 1.0166579732497634, "df": 20, "t_crit": 2.085963447265864, "p_value": 0.3214579551810406, "reject": false}, "11": {"variant": 11, "m": 8, "n": 12, "alpha": 0.05, "x": [30, 22, 31, 21, 28, 37, 28, 26], "y": [22, 34, 14, 29, 41, 37, 21, 24, 31, 23, 23, 25], "xbar": 27.875, "ybar": 27.0, "sx2": 26.125, "sy2": 58.18181818181818, "sp2": 45.71527777777778, "t_obs": 0.28352932908191886, "df": 18, "t_crit": 2.1009220402410382, "p_value": 0.780006422638641, "reject": false}, "12": {"variant": 12, "m": 9, "n": 8, "alpha": 0.05, "x": [27, 32, 36, 34, 21, 27, 28, 34, 35], "y": [34, 14, 30, 22, 35, 35, 37, 39], "xbar": 30.444444444444443, "ybar": 30.75, "sx2": 24.777777777777775, "sy2": 73.07142857142857, "sp2": 47.31481481481481, "t_obs": -0.0914183544423733, "df": 15, "t_crit": 2.131449545559776, "p_value": 0.9283698611004095, "reject": false}, "13": {"variant": 13, "m": 10, "n": 9, "alpha": 0.05, "x": [36, 33, 29, 36, 29, 30, 39, 41, 39, 28], "y": [34, 30, 37, 33, 30, 42, 30, 33, 34], "xbar": 34.0, "ybar": 33.666666666666664, "sx2": 23.333333333333332, "sy2": 15.25, "sp2": 19.529411764705884, "t_obs": 0.16416426189243818, "df": 17, "t_crit": 2.1098155778333156, "p_value": 0.8715378695913598, "reject": false}, "14": {"variant": 14, "m": 11, "n": 10, "alpha": 0.05, "x": [37, 36, 45, 36, 37, 43, 36, 36, 38, 35, 29], "y": [40, 40, 40, 36, 36, 40, 40, 32, 43, 35], "xbar": 37.09090909090909, "ybar": 38.2, "sx2": 17.290909090909093, "sy2": 10.844444444444443, "sp2": 14.237320574162679, "t_obs": -0.6727283170614224, "df": 19, "t_crit": 2.0930240544083087, "p_value": 0.509220015962476, "reject": false}, "15": {"variant": 15, "m": 12, "n": 11, "alpha": 0.05, "x": [40, 40, 49, 42, 41, 41, 43, 37, 44, 39, 45, 44], "y": [43, 34, 49, 42, 47, 46, 44, 50, 39, 39, 49], "xbar": 42.083333333333336, "ybar": 43.81818181818182, "sx2": 10.083333333333332, "sy2": 25.363636363636363, "sp2": 17.359668109668107, "t_obs": -0.9975022633731699, "df": 21, "t_crit": 2.0796138447276795, "p_value": 0.3298766991182227, "reject": false}};
+const variantInput = document.getElementById('variant');
+const runBtn = document.getElementById('runBtn');
+const card = document.getElementById('card');
+const titleVariant = document.getElementById('titleVariant');
+const meta = document.getElementById('meta');
+const sampleX = document.getElementById('sampleX');
+const sampleY = document.getElementById('sampleY');
+const teacherBlock = document.getElementById('teacherBlock');
+const teacherStats = document.getElementById('teacherStats');
+const teacherConclusion = document.getElementById('teacherConclusion');
+
+function fmt(x, digits=3){
+  return Number(x).toFixed(digits).replace('.', ',');
+}
+function buildRows(values){
+  return values.map((v, i) => `<tr><td>${i+1}</td><td>${v}</td></tr>`).join('');
+}
+function renderMeta(d){
+  return `
+    <div class="metaCard"><div class="k">Гипотеза</div><div class="v">H<sub>0</sub>: μ<sub>1</sub> = μ<sub>2</sub><br/>H<sub>1</sub>: μ<sub>1</sub> ≠ μ<sub>2</sub></div></div>
+    <div class="metaCard"><div class="k">Модель</div><div class="v">Две независимые выборки из нормальных совокупностей;<br/>дисперсии неизвестны, но считаются равными</div></div>
+    <div class="metaCard"><div class="k">Размеры выборок</div><div class="v">m = ${d.m}, n = ${d.n}</div></div>
+    <div class="metaCard"><div class="k">Уровень значимости</div><div class="v">α = ${fmt(d.alpha,2)}</div></div>`;
+}
+function renderTeacher(d){
+  if(!teacherBlock) return;
+  teacherStats.innerHTML = `
+    <div class="statCard"><div class="k">Среднее первой выборки x̄</div><div class="v">${fmt(d.xbar, 3)}</div></div>
+    <div class="statCard"><div class="k">Среднее второй выборки ȳ</div><div class="v">${fmt(d.ybar, 3)}</div></div>
+    <div class="statCard"><div class="k">Несмещённая дисперсия s<sub>x</sub><sup>2</sup></div><div class="v">${fmt(d.sx2, 3)}</div></div>
+    <div class="statCard"><div class="k">Несмещённая дисперсия s<sub>y</sub><sup>2</sup></div><div class="v">${fmt(d.sy2, 3)}</div></div>
+    <div class="statCard"><div class="k">Объединённая оценка s<sub>p</sub><sup>2</sup></div><div class="v">${fmt(d.sp2, 3)}</div></div>
+    <div class="statCard"><div class="k">Наблюдаемое значение t<sub>набл</sub></div><div class="v">${fmt(d.t_obs, 3)}</div></div>
+    <div class="statCard"><div class="k">Критическое значение ±t<sub>кр</sub></div><div class="v">±${fmt(d.t_crit, 3)}</div></div>
+    <div class="statCard"><div class="k">Степени свободы</div><div class="v">k = ${d.df}</div></div>
+    <div class="statCard"><div class="k">p-value</div><div class="v">${fmt(d.p_value, 4)}</div></div>`;
+  const reject = Math.abs(d.t_obs) > d.t_crit;
+  teacherConclusion.className = 'formula result ' + (reject ? 'bad' : 'ok');
+  teacherConclusion.innerHTML = reject
+    ? `<strong>Вывод для преподавателя.</strong> Так как |t<sub>набл</sub>| = ${fmt(Math.abs(d.t_obs),3)} &gt; t<sub>кр</sub> = ${fmt(d.t_crit,3)}, гипотеза H<sub>0</sub> отвергается на уровне значимости α = ${fmt(d.alpha,2)}.`
+    : `<strong>Вывод для преподавателя.</strong> Так как |t<sub>набл</sub>| = ${fmt(Math.abs(d.t_obs),3)} ≤ t<sub>кр</sub> = ${fmt(d.t_crit,3)}, нет оснований отвергать гипотезу H<sub>0</sub> на уровне значимости α = ${fmt(d.alpha,2)}.`;
+  teacherBlock.hidden = false;
+}
+function render(v){
+  const d = DATA[String(v)];
+  if(!d){ alert('Введите номер варианта от 1 до 15.'); return; }
+  titleVariant.textContent = 'Вариант ' + d.variant;
+  meta.innerHTML = renderMeta(d);
+  sampleX.innerHTML = buildRows(d.x);
+  sampleY.innerHTML = buildRows(d.y);
+  if(teacherBlock){ renderTeacher(d); }
+  card.hidden = false;
+  const url = new URL(window.location.href);
+  url.searchParams.set('variant', String(v));
+  history.replaceState(null, '', url.toString());
+}
+runBtn.addEventListener('click', () => render(variantInput.value));
+variantInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') render(variantInput.value); });
+const initial = new URL(window.location.href).searchParams.get('variant') || '1';
+variantInput.value = initial;
+render(initial);
+</script>
+</body>
+</html>
