@@ -40,7 +40,8 @@
   .formula code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .sampleCard{border:1px solid var(--border);border-radius:16px;background:#fff;overflow:hidden}
-  .sampleHead{padding:12px 14px;font-size:16px;font-weight:800;background:var(--accent2);border-bottom:1px solid var(--border)}
+  .sampleHead{padding:12px 14px;font-size:16px;font-weight:800;background:var(--accent2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .miniBtn{appearance:none;border:1px solid var(--border);background:#fff;color:var(--text);padding:7px 10px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap}
   table{width:100%;border-collapse:collapse}
   th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;font-size:14px}
   thead th{background:#fff;position:sticky;top:0;z-index:1}
@@ -87,7 +88,7 @@
       <h2>Выборочные данные</h2>
       <div class="grid2">
         <div class="sampleCard">
-          <div class="sampleHead">Первая выборка X</div>
+          <div class="sampleHead"><span>Первая выборка X</span><button id="downloadXBtn" class="miniBtn" type="button">Скачать CSV</button></div>
           <div class="scroll">
             <table>
               <thead><tr><th>i</th><th>x<sub>i</sub></th></tr></thead>
@@ -96,7 +97,7 @@
           </div>
         </div>
         <div class="sampleCard">
-          <div class="sampleHead">Вторая выборка Y</div>
+          <div class="sampleHead"><span>Вторая выборка Y</span><button id="downloadYBtn" class="miniBtn" type="button">Скачать CSV</button></div>
           <div class="scroll">
             <table>
               <thead><tr><th>j</th><th>y<sub>j</sub></th></tr></thead>
@@ -117,6 +118,8 @@ const titleVariant = document.getElementById('titleVariant');
 const meta = document.getElementById('meta');
 const sampleX = document.getElementById('sampleX');
 const sampleY = document.getElementById('sampleY');
+const downloadXBtn = document.getElementById('downloadXBtn');
+const downloadYBtn = document.getElementById('downloadYBtn');
 const teacherBlock = document.getElementById('teacherBlock');
 const teacherStats = document.getElementById('teacherStats');
 const teacherConclusion = document.getElementById('teacherConclusion');
@@ -126,6 +129,17 @@ function fmt(x, digits=3){
 }
 function buildRows(values){
   return values.map((v, i) => `<tr><td>${i+1}</td><td>${v}</td></tr>`).join('');
+}
+function downloadCsv(filename, values, valueName){
+  const lines = ['i,' + valueName, ...values.map((v, i) => `${i + 1},${v}`)];
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
 }
 function renderMeta(d){
   return `
@@ -160,6 +174,8 @@ function render(v){
   meta.innerHTML = renderMeta(d);
   sampleX.innerHTML = buildRows(d.x);
   sampleY.innerHTML = buildRows(d.y);
+  if(downloadXBtn) downloadXBtn.onclick = () => downloadCsv(`variant_${d.variant}_sample_X.csv`, d.x, 'x_i');
+  if(downloadYBtn) downloadYBtn.onclick = () => downloadCsv(`variant_${d.variant}_sample_Y.csv`, d.y, 'y_j');
   if(teacherBlock){ renderTeacher(d); }
   card.hidden = false;
   const url = new URL(window.location.href);
