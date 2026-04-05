@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>РГР №2 - Генератор вариантов (для преподавателей)</title>
+<style>
+
+body { font-family: Arial, sans-serif; margin: 24px; line-height: 1.35; background: #ffffff; }
+header { margin-bottom: 18px; }
+h1 { margin: 0 0 6px 0; font-size: 22px; }
+.hint { color: #555; font-size: 13px; margin: 0; }
+section { margin: 22px 0 34px 0; padding-top: 8px; border-top: 1px solid #ddd; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: end; }
+@media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+label { display: block; font-size: 13px; color: #333; margin-bottom: 4px; }
+select, input[type="number"] { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 10px; font-size: 14px; background: #fff; }
+.static { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 10px; font-size: 14px; background: #fff; box-sizing: border-box; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+button { padding: 9px 12px; border: 1px solid #bbb; background: #f7f7f7; border-radius: 10px; cursor: pointer; }
+button:hover { background: #efefef; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12.8px; }
+pre { padding: 12px; overflow-x: auto; border-radius: 10px; margin: 10px 0; white-space: pre-wrap; }
+pre.out { background: #eaf4ff; }
+pre.code { background: #f7f7f7; }
+details { margin-top: 10px; background: #eaf4ff; border: 1px solid #d6e8ff; border-radius: 10px; padding: 10px 12px; }
+details > *:not(summary) { margin-top: 8px; }
+summary { cursor: pointer; user-select: none; font-weight: 600; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #eee; padding: 6px 8px; font-size: 13px; }
+th { background: #fafafa; text-align: left; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>РГР №2 - Генератор вариантов (для преподавателей)</h1>
+  <p class="hint">Дисциплина: «Математическая статистика», 2025-2026 уч. год. Группы A-F, варианты 1-15.</p>
+</header>
+
+<section>
+  <h2>Выбор варианта</h2>
+  <div class="grid">
+    <div>
+      <label for="pkg">Группа</label>
+      <select id="pkg">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+      </select>
+    </div>
+    <div>
+      <label for="varno">Номер варианта</label>
+      <select id="varno"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option></select>
+    </div>
+    <div>
+      <label>Объём выборки</label>
+      <div class="static" id="nDisplay">n ≈ 100</div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Направления подготовки и группы (A-F)</summary>
+    <table>
+      <thead><tr><th>Группа</th><th>Направления подготовки</th></tr></thead>
+
+<tbody>
+  <tr><td><b>A</b></td><td>Технологии защиты информации; Системное и прикладное программное обеспечение; Компьютерные системы и технологии; Мобильные и сетевые технологии; DevOps в разработке и управлении информационными системами</td></tr>
+  <tr><td><b>B</b></td><td>Робототехника и искусственный интеллект; Языковые модели и искусственный интеллект; MLOps: управление системами ИИ</td></tr>
+  <tr><td><b>C</b></td><td>Технологии разработки компьютерных игр; Геймдизайн и продюсирование компьютерных игр; Компьютерные технологии в дизайне</td></tr>
+  <tr><td><b>D</b></td><td>Бизнес-информатика и управление на основе данных; Инновационные технологии в умном городе; Технологии и инновации</td></tr>
+  <tr><td><b>E</b></td><td>Физика наноструктур; Фотоника и оптоинформатика; Физика фотонных технологий</td></tr>
+  <tr><td><b>F</b></td><td>Биоинженерия</td></tr>
+</tbody>
+
+    </table>
+    <p class="hint">Если вы не уверены, какая группа относится к вашему направлению, сверяйтесь с таблицей.</p>
+  </details>
+
+  <div class="row">
+    <button id="btnGen">Сгенерировать</button>
+    <button id="btnCSV" disabled>Скачать CSV</button>
+    <span class="hint" id="status"></span>
+  </div>
+
+  <details open>
+    <summary>Информация о текущем варианте</summary>
+    <pre class="out mono" id="meta">Сначала нажмите «Сгенерировать».</pre>
+  </details>
+
+  <details>
+    <summary>Краткий прикладной контекст группы</summary>
+    <div class="hint" id="pkgContext"></div>
+  </details>
+</section>
+
+<section>
+  <h2>Ключ (для преподавателя)</h2>
+  <p class="hint">Показываются параметры генерации и краткие расчёты для проверки решений студентов.</p>
+  <details open>
+    <summary>Показать/скрыть ключ</summary>
+    <pre class="out mono" id="teacherKey">Сначала нажмите «Сгенерировать».</pre>
+  </details>
+</section>
+
+<section>
+  <h2>Предпросмотр данных</h2>
+  <p class="hint">Показываются первые 12 строк (для удобства).</p>
+  <div id="preview"></div>
+</section>
+
+<script>
+
+/* ===== RNG utils ===== */
+function mulberry32(a) {
+  return function() {
+    let t = (a += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), 1 | t);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randn(rng) {
+  let u = 0, v = 0;
+  while (u === 0) u = rng();
+  while (v === 0) v = rng();
+  return Math.sqrt(-2.0*Math.log(u)) * Math.cos(2.0*Math.PI*v);
+}
+function rexp(rng, lambda) {
+  let u = 0;
+  while (u === 0) u = rng();
+  return -Math.log(u) / lambda;
+}
+function rerlang2SameMeanAsExp(rng, lambda) {
+  return rexp(rng, 2*lambda) + rexp(rng, 2*lambda);
+}
+function pick(range, rng) {
+  const lo = range[0], hi = range[1];
+  return lo + (hi-lo)*rng();
+}
+function round2(x) {
+  return Math.round(x * 100) / 100;
+}
+function fmtNum(x, digits = 2) {
+  if (!Number.isFinite(x)) return "";
+  return x.toFixed(digits).replace(".", ",");
+}
+function fmtCSV(x) {
+  return Number.isFinite(x) ? x.toFixed(2) : "";
+}
+function fmtVec(arr, digits = 2) {
+  return arr.map(x => fmtNum(x, digits)).join("; ");
+}
+function downloadText(filename, text) {
+  const blob = new Blob([text], {type: "text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ===== Special functions for p-values ===== */
+function erf(x) {
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741,
+        a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  const t = 1.0 / (1.0 + p*x);
+  const y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*Math.exp(-x*x);
+  return sign * y;
+}
+function normalCDF(x) {
+  return 0.5 * (1 + erf(x / Math.SQRT2));
+}
+function gammaln(xx) {
+  const cof = [
+    76.18009172947146, -86.50532032941677, 24.01409824083091,
+    -1.231739572450155, 0.001208650973866179, -0.000005395239384953
+  ];
+  let x = xx - 1.0;
+  let tmp = x + 5.5;
+  tmp -= (x + 0.5) * Math.log(tmp);
+  let ser = 1.000000000190015;
+  for (let j = 0; j < cof.length; j++) {
+    x += 1.0;
+    ser += cof[j] / x;
+  }
+  return -tmp + Math.log(2.5066282746310005 * ser);
+}
+function betacf(a, b, x) {
+  const MAXIT = 200;
+  const EPS = 3.0e-7;
+  const FPMIN = 1.0e-30;
+  let qab = a + b, qap = a + 1.0, qam = a - 1.0;
+  let c = 1.0, d = 1.0 - qab * x / qap;
+  if (Math.abs(d) < FPMIN) d = FPMIN;
+  d = 1.0 / d;
+  let h = d;
+  for (let m = 1; m <= MAXIT; m++) {
+    let m2 = 2 * m;
+    let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+    d = 1.0 + aa * d;
+    if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1.0 + aa / c;
+    if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1.0 / d;
+    h *= d * c;
+    aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+    d = 1.0 + aa * d;
+    if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1.0 + aa / c;
+    if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1.0 / d;
+    const del = d * c;
+    h *= del;
+    if (Math.abs(del - 1.0) < EPS) break;
+  }
+  return h;
+}
+function ibeta(x, a, b) {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const bt = Math.exp(gammaln(a+b) - gammaln(a) - gammaln(b) + a*Math.log(x) + b*Math.log(1-x));
+  if (x < (a + 1.0) / (a + b + 2.0)) {
+    return bt * betacf(a, b, x) / a;
+  } else {
+    return 1.0 - bt * betacf(b, a, 1.0 - x) / b;
+  }
+}
+function tCDF(t, v) {
+  const x = v / (v + t*t);
+  const ib = ibeta(x, v/2.0, 0.5);
+  return t >= 0 ? 1 - 0.5*ib : 0.5*ib;
+}
+function gammaincLowerReg(a, x) {
+  const ITMAX = 200, EPS = 3.0e-7, FPMIN = 1.0e-30;
+  if (x <= 0) return 0;
+  if (x < a + 1.0) {
+    let ap = a, sum = 1.0 / a, del = sum;
+    for (let n = 1; n <= ITMAX; n++) {
+      ap += 1.0;
+      del *= x / ap;
+      sum += del;
+      if (Math.abs(del) < Math.abs(sum)*EPS) {
+        return sum * Math.exp(-x + a*Math.log(x) - gammaln(a));
+      }
+    }
+  } else {
+    let b = x + 1.0 - a;
+    let c = 1.0 / FPMIN;
+    let d = 1.0 / b;
+    let h = d;
+    for (let i = 1; i <= ITMAX; i++) {
+      const an = -i * (i - a);
+      b += 2.0;
+      d = an * d + b;
+      if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = b + an / c;
+      if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1.0 / d;
+      const del = d * c;
+      h *= del;
+      if (Math.abs(del - 1.0) < EPS) break;
+    }
+    return 1.0 - Math.exp(-x + a*Math.log(x) - gammaln(a)) * h;
+  }
+  return NaN;
+}
+function chi2CDF(x, k) {
+  return gammaincLowerReg(k / 2.0, x / 2.0);
+}
+
+/* ===== Basic stats ===== */
+function mean(arr) {
+  return arr.reduce((s, x) => s + x, 0) / arr.length;
+}
+function varianceSample(arr) {
+  const m = mean(arr);
+  let s = 0;
+  for (const x of arr) s += (x - m) * (x - m);
+  return s / (arr.length - 1);
+}
+function pooledVariance(x, y) {
+  const n1 = x.length, n2 = y.length;
+  const s1 = varianceSample(x), s2 = varianceSample(y);
+  return ((n1-1)*s1 + (n2-1)*s2) / (n1+n2-2);
+}
+function tTestEqualVar(x, y) {
+  const n1 = x.length, n2 = y.length;
+  const m1 = mean(x), m2 = mean(y);
+  const s1 = varianceSample(x), s2 = varianceSample(y);
+  const sp2 = ((n1-1)*s1 + (n2-1)*s2) / (n1+n2-2);
+  const h = (m1 - m2) / Math.sqrt(sp2 * (1/n1 + 1/n2));
+  const df = n1 + n2 - 2;
+  const p = 2 * Math.min(tCDF(h, df), 1 - tCDF(h, df));
+  return {n1, n2, m1, m2, s1, s2, sp2, h, df, p};
+}
+function mannWhitney(x, y) {
+  const all = [];
+  for (const v of x) all.push({v, g: 1});
+  for (const v of y) all.push({v, g: 2});
+  all.sort((a,b) => a.v - b.v);
+  let i = 0;
+  let tieSum = 0;
+  while (i < all.length) {
+    let j = i + 1;
+    while (j < all.length && all[j].v === all[i].v) j++;
+    const avgRank = (i + 1 + j) / 2.0;
+    for (let k = i; k < j; k++) all[k].r = avgRank;
+    const t = j - i;
+    if (t > 1) tieSum += t*t*t - t;
+    i = j;
+  }
+  const n1 = x.length, n2 = y.length, N = n1 + n2;
+  const R1 = all.filter(o => o.g === 1).reduce((s,o) => s + o.r, 0);
+  const U1 = R1 - n1*(n1+1)/2;
+  const muU = n1*n2/2;
+  const varU = n1*n2/12 * ((N + 1) - tieSum / (N*(N - 1)));
+  const z = (U1 - muU) / Math.sqrt(varU);
+  const p = 2 * Math.min(normalCDF(z), 1 - normalCDF(z));
+  return {R1, U1, z, p};
+}
+function oneSampleMeanTest(x, mu0) {
+  const n = x.length;
+  const m = mean(x);
+  const s2 = varianceSample(x);
+  const s = Math.sqrt(s2);
+  const h = Math.sqrt(n) * (m - mu0) / s;
+  const df = n - 1;
+  const p = 2 * Math.min(tCDF(h, df), 1 - tCDF(h, df));
+  return {n, m, s2, s, h, df, p, mu0};
+}
+function varianceTest(x, sigma0sq) {
+  const n = x.length;
+  const s2 = varianceSample(x);
+  const h = (n - 1) * s2 / sigma0sq;
+  const df = n - 1;
+  const cdf = chi2CDF(h, df);
+  const p = 2 * Math.min(cdf, 1 - cdf);
+  return {n, s2, h, df, p, sigma0sq};
+}
+function chiSquareGoFExpKnownLambda(x, lambda0) {
+  const n = x.length;
+  const probs = [0.2, 0.2, 0.2, 0.2, 0.2];
+  const q = [
+    -Math.log(1 - 0.2) / lambda0,
+    -Math.log(1 - 0.4) / lambda0,
+    -Math.log(1 - 0.6) / lambda0,
+    -Math.log(1 - 0.8) / lambda0
+  ];
+  const obs = [0,0,0,0,0];
+  for (const v of x) {
+    if (v < q[0]) obs[0] += 1;
+    else if (v < q[1]) obs[1] += 1;
+    else if (v < q[2]) obs[2] += 1;
+    else if (v < q[3]) obs[3] += 1;
+    else obs[4] += 1;
+  }
+  const exp = probs.map(p => n * p);
+  let chi2 = 0;
+  for (let i = 0; i < 5; i++) chi2 += (obs[i] - exp[i])*(obs[i] - exp[i]) / exp[i];
+  const df = 4;
+  const p = 1 - chi2CDF(chi2, df);
+  return {q, obs, exp, chi2, df, p};
+}
+
+/* ===== Packages ===== */
+const PACKAGES = {
+  A: {
+    name:"Инфраструктура, DevOps, сети и безопасность",
+    units:"мс",
+    context:[
+      "X1 и X2 можно интерпретировать как время отклика двух конфигураций сервиса.",
+      "X3 – измерения времени отклика в одном стабильном режиме работы.",
+      "X4 – интервалы времени между событиями/сбоями."
+    ],
+    mu:[55, 95], sigma:[6, 12], lambda:[0.045, 0.110]
+  },
+  B: {
+    name:"AI, ML и робототехника",
+    units:"усл. ед.",
+    context:[
+      "X1 и X2 можно интерпретировать как ошибку или отклонение для двух алгоритмов.",
+      "X3 – серия измерений одного параметра модели или датчика.",
+      "X4 – время между событиями в потоке запросов или регистрации ошибок."
+    ],
+    mu:[-0.5, 2.0], sigma:[0.5, 1.4], lambda:[0.250, 0.650]
+  },
+  C: {
+    name:"Игры и дизайн",
+    units:"мс",
+    context:[
+      "X1 и X2 можно интерпретировать как время обработки кадра для двух режимов.",
+      "X3 – измерения одного параметра производительности.",
+      "X4 – интервалы времени между событиями в системе."
+    ],
+    mu:[10, 24], sigma:[1.2, 3.5], lambda:[0.080, 0.220]
+  },
+  D: {
+    name:"Бизнес, данные и умный город",
+    units:"усл. ед.",
+    context:[
+      "X1 и X2 можно интерпретировать как показатель услуги или нагрузки для двух режимов работы.",
+      "X3 – серия измерений одного показателя качества.",
+      "X4 – интервалы между обращениями или событиями."
+    ],
+    mu:[45, 110], sigma:[7, 18], lambda:[0.060, 0.180]
+  },
+  E: {
+    name:"Физика, фотоника и нано",
+    units:"усл. ед.",
+    context:[
+      "X1 и X2 можно интерпретировать как результаты двух серий измерений.",
+      "X3 – повторные измерения параметра установки.",
+      "X4 – интервалы между регистрациями событий."
+    ],
+    mu:[0.20, 1.20], sigma:[0.05, 0.22], lambda:[0.500, 1.600]
+  },
+  F: {
+    name:"Биоинженерия",
+    units:"усл. ед.",
+    context:[
+      "X1 и X2 можно интерпретировать как результат измерения для двух условий эксперимента.",
+      "X3 – серия повторных измерений одной величины.",
+      "X4 – время до события или реакции."
+    ],
+    mu:[0.30, 1.80], sigma:[0.07, 0.28], lambda:[0.350, 1.050]
+  }
+};
+
+function makeParams(pkgKey, varNo) {
+  const P = PACKAGES[pkgKey];
+  const seed = (pkgKey.charCodeAt(0) * 1000003 + varNo * 10007) >>> 0;
+  const rng = mulberry32(seed);
+
+  const n = 96 + Math.floor(rng() * 15);
+  const alpha = 0.05;
+
+  const muBase = pick(P.mu, rng);
+  const sigma12 = pick(P.sigma, rng);
+  const deltaCode = varNo % 4;
+  const deltaFactor = [0.00, 0.35, 0.70, -0.90][deltaCode];
+  const delta = deltaFactor * sigma12;
+  const mu1 = muBase;
+  const mu2 = muBase + delta;
+
+  const mu3 = pick(P.mu, rng);
+  const sigma3 = pick(P.sigma, rng);
+  const x3Type = (varNo % 2 === 1) ? "mean" : "variance";
+  let mu0 = null, sigma0sq = null;
+  if (x3Type === "mean") {
+    const meanCode = (varNo + pkgKey.charCodeAt(0)) % 5;
+    const offsets = [0.00, 0.22, 0.45, -0.22, -0.45];
+    mu0 = mu3 + offsets[meanCode] * sigma3;
+  } else {
+    const varCode = (varNo + pkgKey.charCodeAt(0)) % 5;
+    const factors = [1.00, 1.20, 0.80, 1.45, 0.70];
+    sigma0sq = sigma3 * sigma3 * factors[varCode];
+  }
+
+  const lambda0 = pick(P.lambda, rng);
+  const x4Mode = (varNo + pkgKey.charCodeAt(0)) % 3; // 0 true exp, 1 wrong lambda, 2 erlang
+  let lambdaTrue = lambda0;
+  if (x4Mode === 1) lambdaTrue = lambda0 * (varNo % 2 === 0 ? 0.72 : 1.38);
+
+  return {
+    seed, n, alpha, pkgKey, pkg: P.name, units: P.units, context: P.context,
+    x12: {mu1, mu2, sigma: sigma12},
+    x3: {type: x3Type, mu: mu3, sigma: sigma3, mu0, sigma0sq},
+    x4: {lambda0, mode: x4Mode, lambdaTrue}
+  };
+}
+
+function generateData(pkgKey, varNo) {
+  const par = makeParams(pkgKey, varNo);
+  const rng = mulberry32((par.seed ^ 0x9e3779b9) >>> 0);
+  const n = par.n;
+  const X1 = [], X2 = [], X3 = [], X4 = [];
+  for (let i = 0; i < n; i++) {
+    X1.push(round2(par.x12.mu1 + par.x12.sigma * randn(rng)));
+    X2.push(round2(par.x12.mu2 + par.x12.sigma * randn(rng)));
+    X3.push(round2(par.x3.mu + par.x3.sigma * randn(rng)));
+    let x4;
+    if (par.x4.mode === 0) x4 = rexp(rng, par.x4.lambda0);
+    else if (par.x4.mode === 1) x4 = rexp(rng, par.x4.lambdaTrue);
+    else x4 = rerlang2SameMeanAsExp(rng, par.x4.lambda0);
+    X4.push(round2(x4));
+  }
+  return {par, X1, X2, X3, X4};
+}
+
+function toCSV(dataObj) {
+  const n = dataObj.X1.length;
+  const lines = ["X1;X2;X3;X4"];
+  for (let i = 0; i < n; i++) {
+    lines.push([dataObj.X1[i], dataObj.X2[i], dataObj.X3[i], dataObj.X4[i]].map(fmtCSV).join(";"));
+  }
+  return lines.join("\n");
+}
+
+function renderPreview(dataObj) {
+  const nShow = Math.min(12, dataObj.X1.length);
+  let html = "<table><thead><tr><th>X1</th><th>X2</th><th>X3</th><th>X4</th></tr></thead><tbody>";
+  for (let i = 0; i < nShow; i++) {
+    html += "<tr>";
+    html += "<td class='mono'>" + fmtNum(dataObj.X1[i]) + "</td>";
+    html += "<td class='mono'>" + fmtNum(dataObj.X2[i]) + "</td>";
+    html += "<td class='mono'>" + fmtNum(dataObj.X3[i]) + "</td>";
+    html += "<td class='mono'>" + fmtNum(dataObj.X4[i]) + "</td>";
+    html += "</tr>";
+  }
+  html += "</tbody></table>";
+  document.getElementById("preview").innerHTML = html;
+}
+
+function updateContext(pkgKey) {
+  const P = PACKAGES[pkgKey];
+  const lines = [
+    "<p class='hint'><b>" + P.name + "</b></p>",
+    ...P.context.map(x => "<p class='hint'>" + x + "</p>")
+  ].join("");
+  document.getElementById("pkgContext").innerHTML = lines;
+}
+
+function variantMetaText(par, varNo) {
+  const lines = [];
+  lines.push("Вариант: " + par.pkgKey + "-" + varNo);
+  lines.push("Группа: " + par.pkgKey);
+  lines.push("Единицы измерения: " + par.units);
+  lines.push("Объём выборки: n = " + par.n);
+  lines.push("Уровень значимости: α = " + fmtNum(par.alpha, 2));
+  lines.push("");
+  lines.push("Карточка варианта");
+  lines.push("1) По столбцам X1 и X2 проверить гипотезу о равенстве математических ожиданий двух независимых нормальных совокупностей.");
+  lines.push("2) По столбцу X3 проверить гипотезу:");
+  if (par.x3.type === "mean") {
+    lines.push("   H₀: μ = " + fmtNum(par.x3.mu0, 2) + ".");
+  } else {
+    lines.push("   H₀: σ² = " + fmtNum(par.x3.sigma0sq, 2) + ".");
+  }
+  lines.push("3) По столбцу X4 проверить гипотезу:");
+  lines.push("   H₀: X4 имеет показательное распределение с параметром λ = " + fmtNum(par.x4.lambda0, 3) + ".");
+  lines.push("   Использовать критерий согласия Пирсона χ².");
+  lines.push("");
+  lines.push("Если в карточке варианта не указано иное, использовать двустороннюю альтернативу.");
+  return lines.join("\n");
+}
+
+function teacherKeyText(dataObj, varNo) {
+  const par = dataObj.par;
+  const t12 = tTestEqualVar(dataObj.X1, dataObj.X2);
+  const mw = mannWhitney(dataObj.X1, dataObj.X2);
+  const x3res = par.x3.type === "mean"
+    ? oneSampleMeanTest(dataObj.X3, par.x3.mu0)
+    : varianceTest(dataObj.X3, par.x3.sigma0sq);
+  const chi = chiSquareGoFExpKnownLambda(dataObj.X4, par.x4.lambda0);
+  const x4Truth = (par.x4.mode === 0)
+    ? "X4 сгенерирован из Exp(λ₀)"
+    : (par.x4.mode === 1)
+      ? "X4 сгенерирован из Exp(λист), где λист ≠ λ₀"
+      : "X4 сгенерирован из распределения Эрланга порядка 2 с тем же математическим ожиданием, что и при H₀";
+
+  const lines = [];
+  lines.push("Вариант: " + par.pkgKey + "-" + varNo);
+  lines.push("Расчёты приведены по округлённым данным из CSV.");
+  lines.push("");
+  lines.push("Параметры генерации");
+  lines.push("  X1: N(" + fmtNum(par.x12.mu1, 2) + "; " + fmtNum(par.x12.sigma*par.x12.sigma, 2) + ")");
+  lines.push("  X2: N(" + fmtNum(par.x12.mu2, 2) + "; " + fmtNum(par.x12.sigma*par.x12.sigma, 2) + ")");
+  lines.push("  X3: N(" + fmtNum(par.x3.mu, 2) + "; " + fmtNum(par.x3.sigma*par.x3.sigma, 2) + ")");
+  lines.push("  X4: " + x4Truth);
+  if (par.x4.mode === 1) lines.push("      λист = " + fmtNum(par.x4.lambdaTrue, 3) + ", λ₀ = " + fmtNum(par.x4.lambda0, 3));
+  if (par.x4.mode === 0 || par.x4.mode === 2) lines.push("      λ₀ = " + fmtNum(par.x4.lambda0, 3));
+  lines.push("");
+  lines.push("X1 и X2: параметрический критерий");
+  lines.push("  x̄₁ = " + fmtNum(t12.m1, 2) + ", x̄₂ = " + fmtNum(t12.m2, 2));
+  lines.push("  s₁² = " + fmtNum(t12.s1, 2) + ", s₂² = " + fmtNum(t12.s2, 2));
+  lines.push("  s̄² = " + fmtNum(t12.sp2, 2));
+  lines.push("  hнабл = " + fmtNum(t12.h, 3) + ", p-value ≈ " + fmtNum(t12.p, 4));
+  lines.push("  Решение при α = 0,05: " + (t12.p < par.alpha ? "H₀ отвергается." : "нет оснований отвергнуть H₀."));
+  lines.push("");
+  lines.push("X1 и X2: непараметрический критерий Манна–Уитни");
+  lines.push("  U = " + fmtNum(mw.U1, 2) + ", z ≈ " + fmtNum(mw.z, 3) + ", p-value ≈ " + fmtNum(mw.p, 4));
+  lines.push("  Решение при α = 0,05: " + (mw.p < par.alpha ? "H₀ отвергается." : "нет оснований отвергнуть H₀."));
+  lines.push("");
+  lines.push("X3: проверка гипотезы о параметре нормального распределения");
+  if (par.x3.type === "mean") {
+    lines.push("  H₀: μ = " + fmtNum(par.x3.mu0, 2));
+    lines.push("  x̄ = " + fmtNum(x3res.m, 2) + ", s² = " + fmtNum(x3res.s2, 2));
+    lines.push("  hнабл = " + fmtNum(x3res.h, 3) + ", p-value ≈ " + fmtNum(x3res.p, 4));
+    lines.push("  Решение при α = 0,05: " + (x3res.p < par.alpha ? "H₀ отвергается." : "нет оснований отвергнуть H₀."));
+  } else {
+    lines.push("  H₀: σ² = " + fmtNum(par.x3.sigma0sq, 2));
+    lines.push("  s² = " + fmtNum(x3res.s2, 2));
+    lines.push("  hнабл = " + fmtNum(x3res.h, 3) + ", p-value ≈ " + fmtNum(x3res.p, 4));
+    lines.push("  Решение при α = 0,05: " + (x3res.p < par.alpha ? "H₀ отвергается." : "нет оснований отвергнуть H₀."));
+  }
+  lines.push("");
+  lines.push("X4: критерий согласия Пирсона");
+  lines.push("  H₀: X4 ~ Exp(λ₀), λ₀ = " + fmtNum(par.x4.lambda0, 3));
+  lines.push("  Рекомендуемые интервалы:");
+  lines.push("    [0; " + fmtNum(chi.q[0], 2) + "), [" + fmtNum(chi.q[0], 2) + "; " + fmtNum(chi.q[1], 2) + "), [" + fmtNum(chi.q[1], 2) + "; " + fmtNum(chi.q[2], 2) + "),");
+  lines.push("    [" + fmtNum(chi.q[2], 2) + "; " + fmtNum(chi.q[3], 2) + "), [" + fmtNum(chi.q[3], 2) + "; +∞).");
+  lines.push("  Наблюдаемые частоты: " + fmtVec(chi.obs, 0));
+  lines.push("  Ожидаемые частоты: " + fmtVec(chi.exp, 1));
+  lines.push("  χ²набл = " + fmtNum(chi.chi2, 3) + ", p-value ≈ " + fmtNum(chi.p, 4));
+  lines.push("  Решение при α = 0,05: " + (chi.p < par.alpha ? "H₀ отвергается." : "нет оснований отвергнуть H₀."));
+  lines.push("");
+  lines.push("seed = " + par.seed);
+  return lines.join("\n");
+}
+
+let last = null;
+let lastCSV = null;
+
+function updateNDisplay() {
+  const pkgKey = document.getElementById("pkg").value;
+  const varNo = parseInt(document.getElementById("varno").value, 10);
+  const par = makeParams(pkgKey, varNo);
+  const el = document.getElementById("nDisplay");
+  if (el) el.textContent = "n = " + par.n;
+}
+
+document.getElementById("pkg").addEventListener("change", (e) => {
+  updateContext(e.target.value);
+  updateNDisplay();
+});
+document.getElementById("varno").addEventListener("change", updateNDisplay);
+updateContext(document.getElementById("pkg").value);
+updateNDisplay();
+
+document.getElementById("btnGen").addEventListener("click", () => {
+  const pkgKey = document.getElementById("pkg").value;
+  const varNo = parseInt(document.getElementById("varno").value, 10);
+  last = generateData(pkgKey, varNo);
+  lastCSV = toCSV(last);
+
+  document.getElementById("meta").textContent = variantMetaText(last.par, varNo);
+  const nEl = document.getElementById("nDisplay"); if (nEl) nEl.textContent = "n = " + last.par.n;
+  renderPreview(last);
+  document.getElementById("btnCSV").disabled = false;
+  document.getElementById("status").textContent = "Готово.";
+  if (document.getElementById("teacherKey")) {
+    document.getElementById("teacherKey").textContent = teacherKeyText(last, varNo);
+  }
+});
+
+document.getElementById("btnCSV").addEventListener("click", () => {
+  if (!lastCSV) return;
+  const pkgKey = document.getElementById("pkg").value;
+  const varNo = document.getElementById("varno").value;
+  const filename = `RGR2_${pkgKey}-${varNo}_X1-X4.csv`;
+  downloadText(filename, lastCSV);
+});
+
+</script>
+
+</body>
+</html>
